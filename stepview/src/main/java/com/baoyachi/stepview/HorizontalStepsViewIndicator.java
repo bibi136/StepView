@@ -52,7 +52,8 @@ public class HorizontalStepsViewIndicator extends View
     private PathEffect mEffects;
     private int mComplectingPosition;//正在进行position   underway position
     private Paint textPaint = new Paint();
-    private int CURVE_CIRCLE_RADIUS = 3;
+    private int CURVE_CIRCLE_RADIUS = 10;
+    int totalHeight = (int) (defaultStepIndicatorNum * 1.8f);
 
 
     private Path mPath;
@@ -151,7 +152,7 @@ public class HorizontalStepsViewIndicator extends View
         {
             screenWidth = MeasureSpec.getSize(widthMeasureSpec);
         }
-        int height = defaultStepIndicatorNum;
+        int height = totalHeight;
         if(MeasureSpec.UNSPECIFIED != MeasureSpec.getMode(heightMeasureSpec))
         {
             height = Math.min(height, MeasureSpec.getSize(heightMeasureSpec));
@@ -241,9 +242,11 @@ public class HorizontalStepsViewIndicator extends View
             }else if(stepsBean.getState()==StepBean.STEP_CURRENT)
             {
                 mCompletedPaint.setColor(Color.WHITE);
-                canvas.drawRect(rect, mCompletedPaint);
-//                drawCurve(rect);
-//                canvas.drawPath(mPath, mCompletedPaint);
+//                canvas.drawRect(rect, mCompletedPaint);
+                float bigRadius = mCircleRadius * 1.7f;
+                Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
+
+                drawCurve(rect1, canvas);
                 // O giua cua vong tron nay
                 canvas.drawText("3", rect.centerX(), (rect.bottom + rect.centerY()) / 2f, textPaint);
             }else if(stepsBean.getState()==StepBean.STEP_COMPLETED)
@@ -257,46 +260,67 @@ public class HorizontalStepsViewIndicator extends View
         //-----------------------画图标-----draw icon-----------------------------------------------
     }
 
-    private void drawCurve(Rect rect) {
-        Point mFirstCurveStartPoint = new Point();
-        Point mFirstCurveEndPoint = new Point();
-        Point mSecondCurveStartPoint;
-        Point mSecondCurveEndPoint = new Point();
-        Point mFirstCurveControlPoint1 = new Point();
-        Point mFirstCurveControlPoint2 = new Point();
-        Point mSecondCurveControlPoint1 = new Point();
-        Point mSecondCurveControlPoint2 = new Point();
+    private void drawCurve(Rect rect, Canvas canvas) {
+//        Point mFirstCurveStartPoint = new Point();
+//        Point mFirstCurveEndPoint = new Point();
+//        Point mSecondCurveStartPoint;
+//        Point mSecondCurveEndPoint = new Point();
+//        Point mFirstCurveControlPoint1 = new Point();
+//        Point mFirstCurveControlPoint2 = new Point();
+//        Point mSecondCurveControlPoint1 = new Point();
+//        Point mSecondCurveControlPoint2 = new Point();
+//
+//        // the coordinates (x,y) of the start point before curve
+//        mFirstCurveStartPoint.set(rect.left - (CURVE_CIRCLE_RADIUS * 2) - (CURVE_CIRCLE_RADIUS / 3), rect.top);
+//        // the coordinates (x,y) of the end point after curve
+//        mFirstCurveEndPoint.set(rect.centerX(), CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4));
+//        // same thing for the second curve
+//        mSecondCurveStartPoint = mFirstCurveEndPoint;
+//        mSecondCurveEndPoint.set((rect.right / 2) + (CURVE_CIRCLE_RADIUS * 2) + (CURVE_CIRCLE_RADIUS / 3), rect.top);
+//
+//        // the coordinates (x,y)  of the 1st control point on a cubic curve
+//        mFirstCurveControlPoint1.set(mFirstCurveStartPoint.x + CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4), mFirstCurveStartPoint.y);
+//        // the coordinates (x,y)  of the 2nd control point on a cubic curve
+//        mFirstCurveControlPoint2.set(mFirstCurveEndPoint.x - (CURVE_CIRCLE_RADIUS * 2) + CURVE_CIRCLE_RADIUS, mFirstCurveEndPoint.y);
+//
+//        mSecondCurveControlPoint1.set(mSecondCurveStartPoint.x + (CURVE_CIRCLE_RADIUS * 2) - CURVE_CIRCLE_RADIUS, mSecondCurveStartPoint.y);
+//        mSecondCurveControlPoint2.set(mSecondCurveEndPoint.x - (CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4)), mSecondCurveEndPoint.y);
+//
+//        mPath.reset();
+////        mPath.moveTo(rect.left - 40, rect.bottom + 40);
+//        mPath.moveTo(mFirstCurveStartPoint.x, mFirstCurveStartPoint.y);
+//        mPath.lineTo(mFirstCurveEndPoint.x, mFirstCurveEndPoint.y);
+//        mPath.lineTo(mFirstCurveControlPoint1.x, mFirstCurveControlPoint1.y);
+//
+////        mPath.cubicTo(mFirstCurveControlPoint1.x, mFirstCurveControlPoint1.y,
+////                mFirstCurveControlPoint2.x, mFirstCurveControlPoint2.y,
+////                mFirstCurveEndPoint.x, mFirstCurveEndPoint.y);
+//
+////        mPath.cubicTo(mSecondCurveControlPoint1.x, mSecondCurveControlPoint1.y,
+////                mSecondCurveControlPoint2.x, mSecondCurveControlPoint2.y,
+////                mSecondCurveEndPoint.x, mSecondCurveEndPoint.y);
+//
+////        mPath.lineTo(rect.width(), 0);
+//        mPath.close();
 
-        // the coordinates (x,y) of the start point before curve
-        mFirstCurveStartPoint.set((rect.width() / 2) - (CURVE_CIRCLE_RADIUS * 2) - (CURVE_CIRCLE_RADIUS / 3), 0);
-        // the coordinates (x,y) of the end point after curve
-        mFirstCurveEndPoint.set(rect.width() / 2, CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4));
-        // same thing for the second curve
-        mSecondCurveStartPoint = mFirstCurveEndPoint;
-        mSecondCurveEndPoint.set((rect.width() / 2) + (CURVE_CIRCLE_RADIUS * 2) + (CURVE_CIRCLE_RADIUS / 3), 0);
+        Point p0 = new Point(rect.left - rect.width() / 3 , rect.bottom);
+        Point p1 = new Point((int) (rect.centerX() * 1.05f), rect.bottom);
+        Point p2 = new Point(rect.left, rect.top);
+        Point p3 = new Point(rect.centerX(), rect.top);
+        Point p4 = new Point(rect.right, rect.top);
+        Point p5 = new Point((int) (rect.centerX() * 0.95f), rect.bottom);
+        Point p6 = new Point(rect.right + rect.width() / 3, rect.bottom);
 
-        // the coordinates (x,y)  of the 1st control point on a cubic curve
-        mFirstCurveControlPoint1.set(mFirstCurveStartPoint.x + CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4), mFirstCurveStartPoint.y);
-        // the coordinates (x,y)  of the 2nd control point on a cubic curve
-        mFirstCurveControlPoint2.set(mFirstCurveEndPoint.x - (CURVE_CIRCLE_RADIUS * 2) + CURVE_CIRCLE_RADIUS, mFirstCurveEndPoint.y);
-
-        mSecondCurveControlPoint1.set(mSecondCurveStartPoint.x + (CURVE_CIRCLE_RADIUS * 2) - CURVE_CIRCLE_RADIUS, mSecondCurveStartPoint.y);
-        mSecondCurveControlPoint2.set(mSecondCurveEndPoint.x - (CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4)), mSecondCurveEndPoint.y);
-
-        mPath.reset();
-//        mPath.moveTo(rect.left - 40, rect.bottom + 40);
-        mPath.moveTo(mFirstCurveStartPoint.x, mFirstCurveStartPoint.y);
-
-        mPath.cubicTo(mFirstCurveControlPoint1.x, mFirstCurveControlPoint1.y,
-                mFirstCurveControlPoint2.x, mFirstCurveControlPoint2.y,
-                mFirstCurveEndPoint.x, mFirstCurveEndPoint.y);
-
-        mPath.cubicTo(mSecondCurveControlPoint1.x, mSecondCurveControlPoint1.y,
-                mSecondCurveControlPoint2.x, mSecondCurveControlPoint2.y,
-                mSecondCurveEndPoint.x, mSecondCurveEndPoint.y);
-
-//        mPath.lineTo(rect.width(), 0);
-        mPath.close();
+        Path path = new Path();
+        Paint curvePaint = new Paint();
+        curvePaint.setAntiAlias(true);
+        curvePaint.setColor(Color.WHITE);
+        curvePaint.setStyle(Paint.Style.FILL);
+        curvePaint.setStrokeWidth(3);
+        path.moveTo(p0.x, p0.y);
+        path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+        path.cubicTo(p4.x, p4.y, p5.x, p5.y, p6.x, p6.y);
+        canvas.drawPath(path, curvePaint);
     }
 
     /**
