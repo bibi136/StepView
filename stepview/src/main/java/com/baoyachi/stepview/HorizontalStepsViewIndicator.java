@@ -7,6 +7,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
@@ -50,6 +51,8 @@ public class HorizontalStepsViewIndicator extends View
     private int mCompletedLineColor = Color.WHITE;//定义默认完成线的颜色      definition mCompletedLineColor
     private PathEffect mEffects;
     private int mComplectingPosition;//正在进行position   underway position
+    private Paint textPaint = new Paint();
+    private int CURVE_CIRCLE_RADIUS = 3;
 
 
     private Path mPath;
@@ -118,7 +121,15 @@ public class HorizontalStepsViewIndicator extends View
         mCompletedPaint.setStrokeWidth(2);
 
         mUnCompletedPaint.setPathEffect(mEffects);
+//        mUnCompletedPaint.setStyle(Paint.Style.FILL);
         mCompletedPaint.setStyle(Paint.Style.FILL);
+
+        // Text number page paint
+        textPaint.setColor(0xFF118ee9);
+        textPaint.setTextSize(40.0f);
+        textPaint.setFakeBoldText(true);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
 
         //已经完成线的宽高 set mCompletedLineHeight
         mCompletedLineHeight = 0.05f * defaultStepIndicatorNum;
@@ -221,21 +232,71 @@ public class HorizontalStepsViewIndicator extends View
 
             if(stepsBean.getState()==StepBean.STEP_UNDO)
             {
+                mCompletedPaint.setColor(mCompletedLineColor);
                 mDefaultIcon.setBounds(rect);
-                mDefaultIcon.draw(canvas);
+                // Ve cai bg tron xung quanh
+                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
+                // O giua cua vong tron nay
+                canvas.drawText("4", rect.centerX(), (rect.bottom + rect.centerY()) / 2f, textPaint);
             }else if(stepsBean.getState()==StepBean.STEP_CURRENT)
             {
                 mCompletedPaint.setColor(Color.WHITE);
-                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.1f, mCompletedPaint);
-                mAttentionIcon.setBounds(rect);
-                mAttentionIcon.draw(canvas);
+                canvas.drawRect(rect, mCompletedPaint);
+//                drawCurve(rect);
+//                canvas.drawPath(mPath, mCompletedPaint);
+                // O giua cua vong tron nay
+                canvas.drawText("3", rect.centerX(), (rect.bottom + rect.centerY()) / 2f, textPaint);
             }else if(stepsBean.getState()==StepBean.STEP_COMPLETED)
             {
                 mCompleteIcon.setBounds(rect);
+                mCompletedPaint.setColor(mCompletedLineColor);
+                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
                 mCompleteIcon.draw(canvas);
             }
         }
         //-----------------------画图标-----draw icon-----------------------------------------------
+    }
+
+    private void drawCurve(Rect rect) {
+        Point mFirstCurveStartPoint = new Point();
+        Point mFirstCurveEndPoint = new Point();
+        Point mSecondCurveStartPoint;
+        Point mSecondCurveEndPoint = new Point();
+        Point mFirstCurveControlPoint1 = new Point();
+        Point mFirstCurveControlPoint2 = new Point();
+        Point mSecondCurveControlPoint1 = new Point();
+        Point mSecondCurveControlPoint2 = new Point();
+
+        // the coordinates (x,y) of the start point before curve
+        mFirstCurveStartPoint.set((rect.width() / 2) - (CURVE_CIRCLE_RADIUS * 2) - (CURVE_CIRCLE_RADIUS / 3), 0);
+        // the coordinates (x,y) of the end point after curve
+        mFirstCurveEndPoint.set(rect.width() / 2, CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4));
+        // same thing for the second curve
+        mSecondCurveStartPoint = mFirstCurveEndPoint;
+        mSecondCurveEndPoint.set((rect.width() / 2) + (CURVE_CIRCLE_RADIUS * 2) + (CURVE_CIRCLE_RADIUS / 3), 0);
+
+        // the coordinates (x,y)  of the 1st control point on a cubic curve
+        mFirstCurveControlPoint1.set(mFirstCurveStartPoint.x + CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4), mFirstCurveStartPoint.y);
+        // the coordinates (x,y)  of the 2nd control point on a cubic curve
+        mFirstCurveControlPoint2.set(mFirstCurveEndPoint.x - (CURVE_CIRCLE_RADIUS * 2) + CURVE_CIRCLE_RADIUS, mFirstCurveEndPoint.y);
+
+        mSecondCurveControlPoint1.set(mSecondCurveStartPoint.x + (CURVE_CIRCLE_RADIUS * 2) - CURVE_CIRCLE_RADIUS, mSecondCurveStartPoint.y);
+        mSecondCurveControlPoint2.set(mSecondCurveEndPoint.x - (CURVE_CIRCLE_RADIUS + (CURVE_CIRCLE_RADIUS / 4)), mSecondCurveEndPoint.y);
+
+        mPath.reset();
+//        mPath.moveTo(rect.left - 40, rect.bottom + 40);
+        mPath.moveTo(mFirstCurveStartPoint.x, mFirstCurveStartPoint.y);
+
+        mPath.cubicTo(mFirstCurveControlPoint1.x, mFirstCurveControlPoint1.y,
+                mFirstCurveControlPoint2.x, mFirstCurveControlPoint2.y,
+                mFirstCurveEndPoint.x, mFirstCurveEndPoint.y);
+
+        mPath.cubicTo(mSecondCurveControlPoint1.x, mSecondCurveControlPoint1.y,
+                mSecondCurveControlPoint2.x, mSecondCurveControlPoint2.y,
+                mSecondCurveEndPoint.x, mSecondCurveEndPoint.y);
+
+//        mPath.lineTo(rect.width(), 0);
+        mPath.close();
     }
 
     /**

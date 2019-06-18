@@ -190,8 +190,8 @@ public class HorizontalStepviewFragment extends Fragment
         setpview5
                 .setStepViewTexts(stepsBeanList)//总步骤
                 .setTextSize(12)//set textSize
-                .setStepsViewIndicatorCompletedLineColor(ContextCompat.getColor(getActivity(), android.R.color.white))//设置StepsViewIndicator完成线的颜色
-                .setStepsViewIndicatorUnCompletedLineColor(ContextCompat.getColor(getActivity(), R.color.uncompleted_text_color))//设置StepsViewIndicator未完成线的颜色
+                .setStepsViewIndicatorCompletedLineColor(0xFF4AAAEE)//设置StepsViewIndicator完成线的颜色
+                .setStepsViewIndicatorUnCompletedLineColor(0xFF4AAAEE)//设置StepsViewIndicator未完成线的颜色
                 .setStepViewComplectedTextColor(ContextCompat.getColor(getActivity(), android.R.color.white))//设置StepsView text完成线的颜色
                 .setStepViewUnComplectedTextColor(ContextCompat.getColor(getActivity(), R.color.uncompleted_text_color))//设置StepsView text未完成线的颜色
                 .setStepsViewIndicatorCompleteIcon(ContextCompat.getDrawable(getActivity(), R.drawable.complted))//设置StepsViewIndicator CompleteIcon
