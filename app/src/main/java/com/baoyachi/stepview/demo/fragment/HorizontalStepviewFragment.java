@@ -175,11 +175,11 @@ public class HorizontalStepviewFragment extends Fragment
     {
         HorizontalStepView setpview5 = (HorizontalStepView) mView.findViewById(R.id.step_view5);
         List<StepBean> stepsBeanList = new ArrayList<>();
-        StepBean stepBean0 = new StepBean("接单",1);
-        StepBean stepBean1 = new StepBean("打包",1);
-        StepBean stepBean2 = new StepBean("出发",1);
+        StepBean stepBean0 = new StepBean("接单",0);
+        StepBean stepBean1 = new StepBean("打包",0);
+        StepBean stepBean2 = new StepBean("出发",0);
         StepBean stepBean3 = new StepBean("送单",0);
-        StepBean stepBean4 = new StepBean("完成",-1);
+        StepBean stepBean4 = new StepBean("完成",0);
         stepsBeanList.add(stepBean0);
         stepsBeanList.add(stepBean1);
         stepsBeanList.add(stepBean2);

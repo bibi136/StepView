@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -54,7 +55,6 @@ public class HorizontalStepsViewIndicator extends View
     private Paint textPaint = new Paint();
     private int CURVE_CIRCLE_RADIUS = 10;
     int totalHeight = (int) (defaultStepIndicatorNum * 1.8f);
-
 
     private Path mPath;
 
@@ -114,14 +114,14 @@ public class HorizontalStepsViewIndicator extends View
         mUnCompletedPaint.setAntiAlias(true);
         mUnCompletedPaint.setColor(mUnCompletedLineColor);
         mUnCompletedPaint.setStyle(Paint.Style.STROKE);
-        mUnCompletedPaint.setStrokeWidth(2);
+        mUnCompletedPaint.setStrokeWidth(10);
 
         mCompletedPaint.setAntiAlias(true);
         mCompletedPaint.setColor(mCompletedLineColor);
         mCompletedPaint.setStyle(Paint.Style.STROKE);
-        mCompletedPaint.setStrokeWidth(2);
+        mCompletedPaint.setStrokeWidth(10);
 
-        mUnCompletedPaint.setPathEffect(mEffects);
+//        mUnCompletedPaint.setPathEffect(mEffects);
 //        mUnCompletedPaint.setStyle(Paint.Style.FILL);
         mCompletedPaint.setStyle(Paint.Style.FILL);
 
@@ -147,7 +147,6 @@ public class HorizontalStepsViewIndicator extends View
     @Override
     protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
-        int width = defaultStepIndicatorNum * 2;
         if(MeasureSpec.UNSPECIFIED != MeasureSpec.getMode(widthMeasureSpec))
         {
             screenWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -157,8 +156,13 @@ public class HorizontalStepsViewIndicator extends View
         {
             height = Math.min(height, MeasureSpec.getSize(heightMeasureSpec));
         }
-        width = (int) (mStepNum * mCircleRadius * 2 - (mStepNum - 1) * mLinePadding);
+        int widthMeasure = MeasureSpec.getSize(widthMeasureSpec);
+        int width = (int) (mStepNum * mCircleRadius * 2 - (mStepNum - 1) * mLinePadding);
+        if (widthMeasure > width) {
+            mLinePadding = (widthMeasure - 100 * 2 - mStepNum * mCircleRadius * 2) / (mStepNum - 1);
+        }
         setMeasuredDimension(width, height);
+
     }
 
     @Override
@@ -212,7 +216,10 @@ public class HorizontalStepsViewIndicator extends View
             if(i <= mComplectingPosition&&mStepBeanList.get(0).getState()!=StepBean.STEP_UNDO)//判断在完成之前的所有点
             {
                 //判断在完成之前的所有点，画完成的线，这里是矩形,很细的矩形，类似线，为了做区分，好看些
-                canvas.drawRect(preComplectedXPosition + mCircleRadius - 10, mLeftY, afterComplectedXPosition - mCircleRadius + 10, mRightY, mCompletedPaint);
+//                canvas.drawRect(preComplectedXPosition + mCircleRadius - 10, mLeftY, afterComplectedXPosition - mCircleRadius + 10, mRightY, mCompletedPaint);
+                mPath.moveTo(preComplectedXPosition + mCircleRadius - 10, mCenterY);
+                mPath.lineTo(afterComplectedXPosition - mCircleRadius + 10, mCenterY);
+                canvas.drawPath(mPath, mCompletedPaint);
             } else
             {
                 mPath.moveTo(preComplectedXPosition + mCircleRadius, mCenterY);
@@ -243,7 +250,7 @@ public class HorizontalStepsViewIndicator extends View
             {
                 mCompletedPaint.setColor(Color.WHITE);
 //                canvas.drawRect(rect, mCompletedPaint);
-                float bigRadius = mCircleRadius * 1.7f;
+                float bigRadius = mCircleRadius * 1.8f;
                 Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
 
                 drawCurve(rect1, canvas);
@@ -302,14 +309,14 @@ public class HorizontalStepsViewIndicator extends View
 //
 ////        mPath.lineTo(rect.width(), 0);
 //        mPath.close();
-
-        Point p0 = new Point(rect.left - rect.width() / 3 , rect.bottom);
+        Log.d("Test", "width = " + rect.width() + " height = " + rect.height());
+        Point p0 = new Point((int) (rect.left - rect.width() / 2.75f), rect.bottom);
         Point p1 = new Point((int) (rect.centerX() * 1.05f), rect.bottom);
-        Point p2 = new Point(rect.left, rect.top);
-        Point p3 = new Point(rect.centerX(), rect.top);
-        Point p4 = new Point(rect.right, rect.top);
+        Point p2 = new Point(rect.left - 3, rect.top + 15);
+        Point p3 = new Point(rect.centerX(), rect.top + 3);
+        Point p4 = new Point(rect.right + 3, rect.top + 15);
         Point p5 = new Point((int) (rect.centerX() * 0.95f), rect.bottom);
-        Point p6 = new Point(rect.right + rect.width() / 3, rect.bottom);
+        Point p6 = new Point((int) (rect.right + rect.width() / 2.75f), rect.bottom);
 
         Path path = new Path();
         Paint curvePaint = new Paint();
@@ -320,6 +327,21 @@ public class HorizontalStepsViewIndicator extends View
         path.moveTo(p0.x, p0.y);
         path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
         path.cubicTo(p4.x, p4.y, p5.x, p5.y, p6.x, p6.y);
+        canvas.drawPath(path, curvePaint);
+
+        path.reset();
+        curvePaint.setColor(Color.GRAY);
+        curvePaint.setStyle(Paint.Style.STROKE);
+        curvePaint.setStrokeWidth(1);
+
+        path.moveTo(p0.x, p0.y);
+        path.lineTo(p1.x, p1.y);
+        path.lineTo(p2.x, p2.y);
+        path.lineTo(p3.x, p3.y);
+        path.lineTo(p4.x, p4.y);
+        path.lineTo(p5.x, p5.y);
+        path.lineTo(p6.x, p6.y);
+
         canvas.drawPath(path, curvePaint);
     }
 
