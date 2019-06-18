@@ -11,13 +11,17 @@
         android:layout_marginTop="4dp" />
 
     <View
+        android:layout_below="@id/steps_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="0.7dp"
+        android:layout_marginTop="-0.7dp"
+        android:background="#e5f1fc" />
+
+    <View
+        android:layout_below="@id/steps_indicator"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@android:color/white" />
 
-    <RelativeLayout
-        android:id="@+id/rl_text_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+
 </LinearLayout>

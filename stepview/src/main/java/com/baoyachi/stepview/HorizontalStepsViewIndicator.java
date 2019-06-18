@@ -127,7 +127,7 @@ public class HorizontalStepsViewIndicator extends View
 
         // Text number page paint
         textPaint.setColor(0xFF118ee9);
-        textPaint.setTextSize(40.0f);
+        textPaint.setTextSize(45.0f);
         textPaint.setFakeBoldText(true);
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
@@ -135,7 +135,7 @@ public class HorizontalStepsViewIndicator extends View
         //已经完成线的宽高 set mCompletedLineHeight
         mCompletedLineHeight = 0.05f * defaultStepIndicatorNum;
         //圆的半径  set mCircleRadius
-        mCircleRadius = 0.28f * defaultStepIndicatorNum;
+        mCircleRadius = 0.26f * defaultStepIndicatorNum;
         //线与线之间的间距    set mLinePadding
         mLinePadding = 0.85f * defaultStepIndicatorNum;
 
@@ -245,22 +245,24 @@ public class HorizontalStepsViewIndicator extends View
                 // Ve cai bg tron xung quanh
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
                 // O giua cua vong tron nay
-                canvas.drawText("4", rect.centerX(), (rect.bottom + rect.centerY()) / 2f, textPaint);
+                canvas.drawText(stepsBean.getName(), rect.centerX() - 2, (rect.bottom + rect.centerY()) / 2f + 5, textPaint);
             }else if(stepsBean.getState()==StepBean.STEP_CURRENT)
             {
                 mCompletedPaint.setColor(Color.WHITE);
 //                canvas.drawRect(rect, mCompletedPaint);
-                float bigRadius = mCircleRadius * 1.8f;
+                float bigRadius = mCircleRadius * 1.75f;
                 Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
 
                 drawCurve(rect1, canvas);
                 // O giua cua vong tron nay
-                canvas.drawText("3", rect.centerX(), (rect.bottom + rect.centerY()) / 2f, textPaint);
+                canvas.drawText(stepsBean.getName(), rect.centerX() - 2, (rect.bottom + rect.centerY()) / 2f + 5, textPaint);
             }else if(stepsBean.getState()==StepBean.STEP_COMPLETED)
             {
-                mCompleteIcon.setBounds(rect);
+//                mCompleteIcon.setBounds(rect);
+                mCompleteIcon.setBounds(rect.left + 3, rect.top + 3, rect.right - 3, rect.bottom - 3);
                 mCompletedPaint.setColor(mCompletedLineColor);
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
+//                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius, mCompletedPaint);
                 mCompleteIcon.draw(canvas);
             }
         }
@@ -310,13 +312,13 @@ public class HorizontalStepsViewIndicator extends View
 ////        mPath.lineTo(rect.width(), 0);
 //        mPath.close();
         Log.d("Test", "width = " + rect.width() + " height = " + rect.height());
-        Point p0 = new Point((int) (rect.left - rect.width() / 2.75f), rect.bottom);
-        Point p1 = new Point((int) (rect.centerX() * 1.05f), rect.bottom);
+        Point p0 = new Point((int) (rect.left - rect.width() / 4f), rect.bottom);
+        Point p1 = new Point((rect.centerX() + 20), rect.bottom);
         Point p2 = new Point(rect.left - 3, rect.top + 15);
         Point p3 = new Point(rect.centerX(), rect.top + 3);
         Point p4 = new Point(rect.right + 3, rect.top + 15);
-        Point p5 = new Point((int) (rect.centerX() * 0.95f), rect.bottom);
-        Point p6 = new Point((int) (rect.right + rect.width() / 2.75f), rect.bottom);
+        Point p5 = new Point((rect.centerX() - 20), rect.bottom);
+        Point p6 = new Point((int) (rect.right + rect.width() / 4f), rect.bottom);
 
         Path path = new Path();
         Paint curvePaint = new Paint();
@@ -327,21 +329,6 @@ public class HorizontalStepsViewIndicator extends View
         path.moveTo(p0.x, p0.y);
         path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
         path.cubicTo(p4.x, p4.y, p5.x, p5.y, p6.x, p6.y);
-        canvas.drawPath(path, curvePaint);
-
-        path.reset();
-        curvePaint.setColor(Color.GRAY);
-        curvePaint.setStyle(Paint.Style.STROKE);
-        curvePaint.setStrokeWidth(1);
-
-        path.moveTo(p0.x, p0.y);
-        path.lineTo(p1.x, p1.y);
-        path.lineTo(p2.x, p2.y);
-        path.lineTo(p3.x, p3.y);
-        path.lineTo(p4.x, p4.y);
-        path.lineTo(p5.x, p5.y);
-        path.lineTo(p6.x, p6.y);
-
         canvas.drawPath(path, curvePaint);
     }
 
