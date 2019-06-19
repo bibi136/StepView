@@ -22,16 +22,10 @@ import java.util.List;
  * <p/>
  * 描述：StepView
  */
-public class HorizontalStepView extends LinearLayout implements HorizontalStepsViewIndicator.OnDrawIndicatorListener
+public class HorizontalStepView extends LinearLayout
 {
-    private RelativeLayout mTextContainer;
     private HorizontalStepsViewIndicator mStepsViewIndicator;
     private List<StepBean> mStepBeanList;
-    private int mComplectingPosition;
-    private int mUnComplectedTextColor = ContextCompat.getColor(getContext(), R.color.uncompleted_text_color);//定义默认未完成文字的颜色;
-    private int mComplectedTextColor = ContextCompat.getColor(getContext(), android.R.color.white);//定义默认完成文字的颜色;
-    private int mTextSize = 14;//default textSize
-    private TextView mTextView;
 
     public HorizontalStepView(Context context)
     {
@@ -53,8 +47,6 @@ public class HorizontalStepView extends LinearLayout implements HorizontalStepsV
     {
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.widget_horizontal_stepsview, this);
         mStepsViewIndicator = (HorizontalStepsViewIndicator) rootView.findViewById(R.id.steps_indicator);
-        mStepsViewIndicator.setOnDrawListener(this);
-        mTextContainer = (RelativeLayout) rootView.findViewById(R.id.rl_text_container);
     }
 
     /**
@@ -70,29 +62,8 @@ public class HorizontalStepView extends LinearLayout implements HorizontalStepsV
         return this;
     }
 
-
-    /**
-     * 设置未完成文字的颜色
-     *
-     * @param unComplectedTextColor
-     * @return
-     */
-    public HorizontalStepView setStepViewUnComplectedTextColor(int unComplectedTextColor)
-    {
-        mUnComplectedTextColor = unComplectedTextColor;
-        return this;
-    }
-
-    /**
-     * 设置完成文字的颜色
-     *
-     * @param complectedTextColor
-     * @return
-     */
-    public HorizontalStepView setStepViewComplectedTextColor(int complectedTextColor)
-    {
-        this.mComplectedTextColor = complectedTextColor;
-        return this;
+    public void setStep(int stepNum) {
+        mStepsViewIndicator.setStep(stepNum);
     }
 
     /**
@@ -151,56 +122,4 @@ public class HorizontalStepView extends LinearLayout implements HorizontalStepsV
         mStepsViewIndicator.setAttentionIcon(attentionIcon);
         return this;
     }
-
-    /**
-     * set textSize
-     *
-     * @param textSize
-     * @return
-     */
-    public HorizontalStepView setTextSize(int textSize)
-    {
-        if(textSize > 0)
-        {
-            mTextSize = textSize;
-        }
-        return this;
-    }
-
-    @Override
-    public void ondrawIndicator()
-    {
-        if(mTextContainer != null)
-        {
-            mTextContainer.removeAllViews();
-            List<Float> complectedXPosition = mStepsViewIndicator.getCircleCenterPointPositionList();
-            if(mStepBeanList != null && complectedXPosition != null && complectedXPosition.size() > 0)
-            {
-                for(int i = 0; i < mStepBeanList.size(); i++)
-                {
-                    mTextView = new TextView(getContext());
-                    mTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, mTextSize);
-                    mTextView.setText(mStepBeanList.get(i).getName());
-                    int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                    mTextView.measure(spec, spec);
-                    // getMeasuredWidth
-                    int measuredWidth = mTextView.getMeasuredWidth();
-                    mTextView.setX(complectedXPosition.get(i) - measuredWidth / 2);
-                    mTextView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-                    if(i <= mComplectingPosition)
-                    {
-                        mTextView.setTypeface(null, Typeface.BOLD);
-                        mTextView.setTextColor(mComplectedTextColor);
-                    } else
-                    {
-                        mTextView.setTextColor(mUnComplectedTextColor);
-                    }
-
-                    mTextContainer.addView(mTextView);
-                }
-            }
-        }
-    }
-
 }
