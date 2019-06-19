@@ -91,17 +91,6 @@ public class HorizontalStepView extends LinearLayout
     }
 
     /**
-     * 设置StepsViewIndicator默认图片
-     *
-     * @param defaultIcon
-     */
-    public HorizontalStepView setStepsViewIndicatorDefaultIcon(Drawable defaultIcon)
-    {
-        mStepsViewIndicator.setDefaultIcon(defaultIcon);
-        return this;
-    }
-
-    /**
      * 设置StepsViewIndicator已完成图片
      *
      * @param completeIcon
@@ -109,17 +98,6 @@ public class HorizontalStepView extends LinearLayout
     public HorizontalStepView setStepsViewIndicatorCompleteIcon(Drawable completeIcon)
     {
         mStepsViewIndicator.setCompleteIcon(completeIcon);
-        return this;
-    }
-
-    /**
-     * 设置StepsViewIndicator正在进行中的图片
-     *
-     * @param attentionIcon
-     */
-    public HorizontalStepView setStepsViewIndicatorAttentionIcon(Drawable attentionIcon)
-    {
-        mStepsViewIndicator.setAttentionIcon(attentionIcon);
         return this;
     }
 }

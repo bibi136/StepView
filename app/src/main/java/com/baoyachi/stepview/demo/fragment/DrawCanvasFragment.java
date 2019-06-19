@@ -1,19 +1,25 @@
 package com.baoyachi.stepview.demo.fragment;
 
+import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import com.baoyachi.stepview.demo.R;
 
@@ -22,26 +28,49 @@ import com.baoyachi.stepview.demo.R;
  * <p>
  * 描述：
  */
-public class DrawCanvasFragment extends Fragment
-{
+public class DrawCanvasFragment extends Fragment {
     View mView;
+    int centerY = 50; // rect.top -> maxHeight
+    RectView rectView;
+
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        return new RectView(container.getContext());
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rectView =  new RectView(container.getContext());
+        return rectView;
     }
-    public class RectView extends View
-    {
 
-        public RectView(Context context)
-        {
+    @Override
+    public void onResume() {
+        super.onResume();
+        rectView.startAnim();
+    }
+
+    public class RectView extends View {
+
+        public RectView(Context context) {
             super(context);
         }
 
+        public void startAnim() {
+            ValueAnimator animator = ValueAnimator.ofInt(400, 50);
+//            animator.setInterpolator(new DecelerateInterpolator());
+            animator.setDuration(3000);
+            animator.setRepeatCount(ValueAnimator.INFINITE);
+            animator.setRepeatMode(ValueAnimator.REVERSE);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    centerY = (int) animation.getAnimatedValue();
+                    Log.d("CenterY", "CenterY = " + centerY );
+                    invalidate();
+                }
+            });
+            animator.start();
+        }
+
         @Override
-        protected void onDraw(Canvas canvas)
-        {
+        protected void onDraw(Canvas canvas) {
 
             super.onDraw(canvas);
             setBackgroundResource(R.drawable.default_bg);//设置背景色
@@ -77,14 +106,20 @@ public class DrawCanvasFragment extends Fragment
             //--------------------------绘制虚线-----------------------------------------------------
 
             Rect rect = new Rect(200, 50, 600, 400);
+            int maxHeight = rect.bottom;
+            int centerX = rect.centerX();
 
-            Point p0 = new Point(rect.left - rect.width() / 3 , rect.bottom);
-            Point p1 = new Point((int) (rect.centerX() * 1.1f), rect.bottom);
-            Point p2 = new Point(rect.left, rect.top);
-            Point p3 = new Point(rect.centerX(), rect.top);
-            Point p4 = new Point(rect.right, rect.top);
-            Point p5 = new Point((int) (rect.centerX() * 0.9f), rect.bottom);
-            Point p6 = new Point(rect.right + rect.width() / 3, rect.bottom);
+            Point p0 = new Point(rect.left - rect.width() / 3, rect.bottom);
+            Point p3 = new Point(rect.centerX(), centerY);
+
+            Point p1 = new Point((int) rect.centerX(), rect.bottom);
+            Point p2 = new Point((int) (rect.left + (1 - (((float)maxHeight - centerY)/ maxHeight + 0.1f)) * rect.width() * 0.4), centerY);
+            Log.d("Test", "p2x = " + p2.x);
+
+
+            Point p4 = new Point(2 * centerX - p2.x, p2.y);
+            Point p5 = new Point(2 * centerX - p1.x, p1.y);
+            Point p6 = new Point(2 * centerX - p0.x, p0.y);
 
             Path path = new Path();
             Paint curvePaint = new Paint();

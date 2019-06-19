@@ -31,15 +31,11 @@ public class HorizontalStepsViewIndicator extends View {
     //定义默认的高度   definition default height
     private int defaultStepIndicatorNum = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
 
-    private float mCompletedLineHeight;//完成线的高度     definition completed line height
+    private float mCompletedLineHeight = 5;//完成线的高度     definition completed line height
     private float mCircleRadius;//圆的半径  definition circle radius
 
     private Drawable mCompleteIcon;//完成的默认图片    definition default completed icon
-    private Drawable mAttentionIcon;//正在进行的默认图片     definition default underway icon
-    private Drawable mDefaultIcon;//默认的背景图  definition default unCompleted icon
     private float mCenterY;//该view的Y轴中间位置     definition view centerY position
-    private float mLeftY;//左上方的Y位置  definition rectangle LeftY position
-    private float mRightY;//右下方的位置  definition rectangle RightY position
 
     private List<StepBean> mStepBeanList;//当前有几部流程    there are currently few step
     private int mStepNum = 0;
@@ -50,10 +46,8 @@ public class HorizontalStepsViewIndicator extends View {
     private Paint mCompletedPaint;//完成paint      definition mCompletedPaint
     private int mUnCompletedLineColor = ContextCompat.getColor(getContext(), R.color.uncompleted_color);//定义默认未完成线的颜色  definition
     private int mCompletedLineColor = Color.WHITE;//定义默认完成线的颜色      definition mCompletedLineColor
-    private PathEffect mEffects;
     private int mComplectingPosition;//正在进行position   underway position
     private Paint textPaint = new Paint();
-    private int CURVE_CIRCLE_RADIUS = 10;
     int totalHeight = (int) (defaultStepIndicatorNum * 1.8f);
 
     private Path mPath;
@@ -91,7 +85,6 @@ public class HorizontalStepsViewIndicator extends View {
     private void init() {
         mStepBeanList = new ArrayList<>();
         mPath = new Path();
-        mEffects = new DashPathEffect(new float[]{8, 8, 8, 8}, 1);
 
         mCircleCenterPointPositionList = new ArrayList<>();//初始化
 
@@ -100,16 +93,12 @@ public class HorizontalStepsViewIndicator extends View {
         mUnCompletedPaint.setAntiAlias(true);
         mUnCompletedPaint.setColor(mUnCompletedLineColor);
         mUnCompletedPaint.setStyle(Paint.Style.STROKE);
-        mUnCompletedPaint.setStrokeWidth(dpToPx(4));
+        mUnCompletedPaint.setStrokeWidth(dpToPx(mCompletedLineHeight));
 
         mCompletedPaint.setAntiAlias(true);
         mCompletedPaint.setColor(mCompletedLineColor);
-        mCompletedPaint.setStyle(Paint.Style.STROKE);
-        mCompletedPaint.setStrokeWidth(dpToPx(4));
-
-//        mUnCompletedPaint.setPathEffect(mEffects);
-//        mUnCompletedPaint.setStyle(Paint.Style.FILL);
         mCompletedPaint.setStyle(Paint.Style.FILL);
+        mCompletedPaint.setStrokeWidth(dpToPx(mCompletedLineHeight));
 
         // Text number page paint
         float scaledSizeInPixels = TEXT_SIZE_SP * getResources().getDisplayMetrics().scaledDensity;
@@ -119,16 +108,12 @@ public class HorizontalStepsViewIndicator extends View {
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
 
-        //已经完成线的宽高 set mCompletedLineHeight
-        mCompletedLineHeight = 0.05f * defaultStepIndicatorNum;
         //圆的半径  set mCircleRadius
         mCircleRadius = 0.26f * defaultStepIndicatorNum;
         //线与线之间的间距    set mLinePadding
         mLinePadding = 0.85f * defaultStepIndicatorNum;
 
         mCompleteIcon = ContextCompat.getDrawable(getContext(), R.drawable.complted);//已经完成的icon
-        mAttentionIcon = ContextCompat.getDrawable(getContext(), R.drawable.attention);//正在进行的icon
-        mDefaultIcon = ContextCompat.getDrawable(getContext(), R.drawable.default_icon);//未完成的icon
     }
 
     @Override
@@ -152,12 +137,7 @@ public class HorizontalStepsViewIndicator extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        //获取中间的高度,目的是为了让该view绘制的线和圆在该view垂直居中   get view centerY，keep current stepview center vertical
         mCenterY = 0.5f * getHeight();
-        //获取左上方Y的位置，获取该点的意义是为了方便画矩形左上的Y位置
-        mLeftY = mCenterY - (mCompletedLineHeight / 2);
-        //获取右下方Y的位置，获取该点的意义是为了方便画矩形右下的Y位置
-        mRightY = mCenterY + mCompletedLineHeight / 2;
 
         mCircleCenterPointPositionList.clear();
         for (int i = 0; i < mStepNum; i++) {
@@ -184,9 +164,8 @@ public class HorizontalStepsViewIndicator extends View {
             if (i <= mComplectingPosition && mStepBeanList.get(0).getState() != StepBean.STEP_UNDO)//判断在完成之前的所有点
             {
                 //判断在完成之前的所有点，画完成的线，这里是矩形,很细的矩形，类似线，为了做区分，好看些
-//                canvas.drawRect(preComplectedXPosition + mCircleRadius - 10, mLeftY, afterComplectedXPosition - mCircleRadius + 10, mRightY, mCompletedPaint);
-                mPath.moveTo(preComplectedXPosition + mCircleRadius - 10, mCenterY);
-                mPath.lineTo(afterComplectedXPosition - mCircleRadius + 10, mCenterY);
+                mPath.moveTo(preComplectedXPosition + mCircleRadius, mCenterY);
+                mPath.lineTo(afterComplectedXPosition - mCircleRadius, mCenterY);
                 canvas.drawPath(mPath, mCompletedPaint);
             } else {
                 mPath.moveTo(preComplectedXPosition + mCircleRadius, mCenterY);
@@ -206,7 +185,6 @@ public class HorizontalStepsViewIndicator extends View {
 
             if (stepsBean.getState() == StepBean.STEP_UNDO) {
                 mCompletedPaint.setColor(mCompletedLineColor);
-                mDefaultIcon.setBounds(rect);
                 // Ve cai bg tron xung quanh
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
                 // O giua cua vong tron nay
@@ -236,9 +214,11 @@ public class HorizontalStepsViewIndicator extends View {
         Log.d("Test", "width = " + rect.width() + " height = " + rect.height());
         Point p0 = new Point((int) (rect.left - rect.width() / 4f), rect.bottom);
         Point p1 = new Point((rect.centerX() + dpToPx(10)), rect.bottom);
-        Point p2 = new Point(rect.left - 3, rect.top + dpToPx(7));
-        Point p3 = new Point(rect.centerX(), rect.top + dpToPx(1));
-        Point p4 = new Point(rect.right + 3, rect.top + dpToPx(7));
+        Point p2 = new Point(rect.left - dpToPx(2), rect.top + dpToPx(7));
+
+        Point p3 = new Point(rect.centerX(), rect.top + dpToPx(3));
+
+        Point p4 = new Point(rect.right + dpToPx(2), rect.top + dpToPx(7));
         Point p5 = new Point((rect.centerX() - dpToPx(10)), rect.bottom);
         Point p6 = new Point((int) (rect.right + rect.width() / 4f), rect.bottom);
 
@@ -247,7 +227,6 @@ public class HorizontalStepsViewIndicator extends View {
         curvePaint.setAntiAlias(true);
         curvePaint.setColor(Color.WHITE);
         curvePaint.setStyle(Paint.Style.FILL);
-        curvePaint.setStrokeWidth(3);
         path.moveTo(p0.x, p0.y);
         path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
         path.cubicTo(p4.x, p4.y, p5.x, p5.y, p6.x, p6.y);
@@ -305,30 +284,12 @@ public class HorizontalStepsViewIndicator extends View {
     }
 
     /**
-     * 设置默认图片
-     *
-     * @param defaultIcon
-     */
-    public void setDefaultIcon(Drawable defaultIcon) {
-        this.mDefaultIcon = defaultIcon;
-    }
-
-    /**
      * 设置已完成图片
      *
      * @param completeIcon
      */
     public void setCompleteIcon(Drawable completeIcon) {
         this.mCompleteIcon = completeIcon;
-    }
-
-    /**
-     * 设置正在进行中的图片
-     *
-     * @param attentionIcon
-     */
-    public void setAttentionIcon(Drawable attentionIcon) {
-        this.mAttentionIcon = attentionIcon;
     }
 
     public void setStep(int stepNum) {
@@ -349,7 +310,7 @@ public class HorizontalStepsViewIndicator extends View {
         invalidate();
     }
 
-    public int dpToPx(int dp) {
+    public int dpToPx(float dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
