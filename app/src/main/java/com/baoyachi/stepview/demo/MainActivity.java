@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity
         HorizontalStepviewFragment mHorizontalStepviewFragment = new HorizontalStepviewFragment();
         DrawCanvasFragment mDrawCanvasFragment = new DrawCanvasFragment();
 
-        getFragmentManager().beginTransaction().replace(R.id.container, mDrawCanvasFragment).commit();
+        getFragmentManager().beginTransaction().replace(R.id.container, mHorizontalStepviewFragment).commit();
     }
 
     @Override

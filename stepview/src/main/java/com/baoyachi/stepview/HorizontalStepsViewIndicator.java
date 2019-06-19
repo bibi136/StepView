@@ -1,12 +1,12 @@
 package com.baoyachi.stepview;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -16,6 +16,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import com.baoyachi.stepview.bean.StepBean;
 
@@ -55,6 +58,13 @@ public class HorizontalStepsViewIndicator extends View {
 
     private static final int HORIZONTAL_PADDING = 45;
     private static final float TEXT_SIZE_SP = 17;
+    int centerY;
+    int downCenterY;
+    int rectTop;
+    boolean firstLaunch = true;
+    int currentStep = 0;
+    int oldStep;
+    boolean isAnimating;
 
     /**
      * get圆的半径  get circle radius
@@ -189,13 +199,20 @@ public class HorizontalStepsViewIndicator extends View {
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
                 // O giua cua vong tron nay
                 canvas.drawText(stepsBean.getName(), rect.centerX(), (rect.bottom + rect.centerY()) / 2f + dpToPx(2), textPaint);
+                if (isAnimating && oldStep == i) {
+                    mCompletedPaint.setColor(Color.WHITE);
+                    float bigRadius = mCircleRadius * 1.75f;
+                    Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
+                    drawCurve(rect1, canvas, downCenterY);
+
+                }
             } else if (stepsBean.getState() == StepBean.STEP_CURRENT) {
                 mCompletedPaint.setColor(Color.WHITE);
-//                canvas.drawRect(rect, mCompletedPaint);
                 float bigRadius = mCircleRadius * 1.75f;
+//                canvas.drawRect(rect, mCompletedPaint);
                 Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
 
-                drawCurve(rect1, canvas);
+                drawCurve(rect1, canvas, centerY);
                 // O giua cua vong tron nay
                 canvas.drawText(stepsBean.getName(), rect.centerX(), (rect.bottom + rect.centerY()) / 2f + dpToPx(2), textPaint);
             } else if (stepsBean.getState() == StepBean.STEP_COMPLETED) {
@@ -205,22 +222,40 @@ public class HorizontalStepsViewIndicator extends View {
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
 //                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius, mCompletedPaint);
                 mCompleteIcon.draw(canvas);
+                if (isAnimating && oldStep == i) {
+                    mCompletedPaint.setColor(Color.WHITE);
+                    float bigRadius = mCircleRadius * 1.75f;
+                    Rect rect1 = new Rect((int) (currentComplectedXPosition - bigRadius * 2), (int) (mCenterY - bigRadius), (int) (currentComplectedXPosition + bigRadius * 2), totalHeight);
+                    drawCurve(rect1, canvas, downCenterY);
+
+                }
             }
         }
         //-----------------------画图标-----draw icon-----------------------------------------------
     }
 
-    private void drawCurve(Rect rect, Canvas canvas) {
+    private void drawCurve(Rect rect, Canvas canvas, int centerY) {
+        rectTop = rect.top;
+        if (firstLaunch) {
+            this.centerY = rectTop;
+            centerY = rectTop;
+            firstLaunch = false;
+        }
         Log.d("Test", "width = " + rect.width() + " height = " + rect.height());
-        Point p0 = new Point((int) (rect.left - rect.width() / 4f), rect.bottom);
-        Point p1 = new Point((rect.centerX() + dpToPx(10)), rect.bottom);
-        Point p2 = new Point(rect.left - dpToPx(2), rect.top + dpToPx(7));
+        int maxHeight = rect.bottom;
+        int centerX = rect.centerX();
 
-        Point p3 = new Point(rect.centerX(), rect.top + dpToPx(3));
+        Point p0 = new Point(rect.left - rect.width() / 3, rect.bottom);
+        Point p3 = new Point(rect.centerX(), centerY);
 
-        Point p4 = new Point(rect.right + dpToPx(2), rect.top + dpToPx(7));
-        Point p5 = new Point((rect.centerX() - dpToPx(10)), rect.bottom);
-        Point p6 = new Point((int) (rect.right + rect.width() / 4f), rect.bottom);
+        Point p1 = new Point((int) rect.centerX(), rect.bottom);
+        Point p2 = new Point((int) (rect.left + (1 - (((float) maxHeight - centerY) / maxHeight + 0.1f)) * rect.width() * 0.4), centerY);
+        Log.d("Test", "p2x = " + p2.x);
+
+
+        Point p4 = new Point(2 * centerX - p2.x, p2.y);
+        Point p5 = new Point(2 * centerX - p1.x, p1.y);
+        Point p6 = new Point(2 * centerX - p0.x, p0.y);
 
         Path path = new Path();
         Paint curvePaint = new Paint();
@@ -297,6 +332,8 @@ public class HorizontalStepsViewIndicator extends View {
             Log.e("Stepview", "step num is out of size");
             return;
         }
+        oldStep = currentStep;
+        currentStep = stepNum;
         boolean reachCurrentStep = false;
         for (int i = 0; i < mStepBeanList.size(); i++) {
             StepBean stepBean = mStepBeanList.get(i);
@@ -307,7 +344,44 @@ public class HorizontalStepsViewIndicator extends View {
                 stepBean.setState(reachCurrentStep ? -1 : 1);
             }
         }
-        invalidate();
+        startAnim();
+    }
+
+    public void startAnim() {
+        ValueAnimator animator = ValueAnimator.ofInt(totalHeight, rectTop);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.setDuration(300);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                centerY = (int) animation.getAnimatedValue();
+                downCenterY = totalHeight - (centerY - rectTop);
+                Log.d("CenterY", "CenterY = " + centerY);
+                invalidate();
+            }
+        });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                isAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isAnimating = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.start();
     }
 
     public int dpToPx(float dp) {
