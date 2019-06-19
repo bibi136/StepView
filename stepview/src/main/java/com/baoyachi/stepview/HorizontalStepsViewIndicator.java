@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -56,18 +57,10 @@ public class HorizontalStepsViewIndicator extends View {
     int totalHeight = (int) (defaultStepIndicatorNum * 1.8f);
 
     private Path mPath;
-
-    private OnDrawIndicatorListener mOnDrawListener;
     private int screenWidth;//this screen width
 
-    /**
-     * 设置监听
-     *
-     * @param onDrawListener
-     */
-    public void setOnDrawListener(OnDrawIndicatorListener onDrawListener) {
-        mOnDrawListener = onDrawListener;
-    }
+    private static final int HORIZONTAL_PADDING = 45;
+    private static final float TEXT_SIZE_SP = 17;
 
     /**
      * get圆的半径  get circle radius
@@ -107,20 +100,21 @@ public class HorizontalStepsViewIndicator extends View {
         mUnCompletedPaint.setAntiAlias(true);
         mUnCompletedPaint.setColor(mUnCompletedLineColor);
         mUnCompletedPaint.setStyle(Paint.Style.STROKE);
-        mUnCompletedPaint.setStrokeWidth(10);
+        mUnCompletedPaint.setStrokeWidth(dpToPx(4));
 
         mCompletedPaint.setAntiAlias(true);
         mCompletedPaint.setColor(mCompletedLineColor);
         mCompletedPaint.setStyle(Paint.Style.STROKE);
-        mCompletedPaint.setStrokeWidth(10);
+        mCompletedPaint.setStrokeWidth(dpToPx(4));
 
 //        mUnCompletedPaint.setPathEffect(mEffects);
 //        mUnCompletedPaint.setStyle(Paint.Style.FILL);
         mCompletedPaint.setStyle(Paint.Style.FILL);
 
         // Text number page paint
+        float scaledSizeInPixels = TEXT_SIZE_SP * getResources().getDisplayMetrics().scaledDensity;
         textPaint.setColor(0xFF118ee9);
-        textPaint.setTextSize(45.0f);
+        textPaint.setTextSize(scaledSizeInPixels);
         textPaint.setFakeBoldText(true);
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
@@ -149,7 +143,7 @@ public class HorizontalStepsViewIndicator extends View {
         int widthMeasure = MeasureSpec.getSize(widthMeasureSpec);
         int width = (int) (mStepNum * mCircleRadius * 2 - (mStepNum - 1) * mLinePadding);
         if (widthMeasure > width) {
-            mLinePadding = (widthMeasure - 100 * 2 - mStepNum * mCircleRadius * 2) / (mStepNum - 1);
+            mLinePadding = (widthMeasure - dpToPx(HORIZONTAL_PADDING) * 2 - mStepNum * mCircleRadius * 2) / (mStepNum - 1);
         }
         setMeasuredDimension(width, height);
 
@@ -172,21 +166,11 @@ public class HorizontalStepsViewIndicator extends View {
             //add to list
             mCircleCenterPointPositionList.add(paddingLeft + mCircleRadius + i * mCircleRadius * 2 + i * mLinePadding);
         }
-
-        /**
-         * set listener
-         */
-        if (mOnDrawListener != null) {
-            mOnDrawListener.ondrawIndicator();
-        }
     }
 
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mOnDrawListener != null) {
-            mOnDrawListener.ondrawIndicator();
-        }
         mUnCompletedPaint.setColor(mUnCompletedLineColor);
         mCompletedPaint.setColor(mCompletedLineColor);
 
@@ -226,7 +210,7 @@ public class HorizontalStepsViewIndicator extends View {
                 // Ve cai bg tron xung quanh
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
                 // O giua cua vong tron nay
-                canvas.drawText(stepsBean.getName(), rect.centerX() - 2, (rect.bottom + rect.centerY()) / 2f + 5, textPaint);
+                canvas.drawText(stepsBean.getName(), rect.centerX(), (rect.bottom + rect.centerY()) / 2f + dpToPx(2), textPaint);
             } else if (stepsBean.getState() == StepBean.STEP_CURRENT) {
                 mCompletedPaint.setColor(Color.WHITE);
 //                canvas.drawRect(rect, mCompletedPaint);
@@ -235,10 +219,10 @@ public class HorizontalStepsViewIndicator extends View {
 
                 drawCurve(rect1, canvas);
                 // O giua cua vong tron nay
-                canvas.drawText(stepsBean.getName(), rect.centerX() - 2, (rect.bottom + rect.centerY()) / 2f + 5, textPaint);
+                canvas.drawText(stepsBean.getName(), rect.centerX(), (rect.bottom + rect.centerY()) / 2f + dpToPx(2), textPaint);
             } else if (stepsBean.getState() == StepBean.STEP_COMPLETED) {
 //                mCompleteIcon.setBounds(rect);
-                mCompleteIcon.setBounds(rect.left + 3, rect.top + 3, rect.right - 3, rect.bottom - 3);
+                mCompleteIcon.setBounds(rect.left + dpToPx(2), rect.top + dpToPx(2), rect.right - dpToPx(2), rect.bottom - dpToPx(2));
                 mCompletedPaint.setColor(mCompletedLineColor);
                 canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius * 1.3f, mCompletedPaint);
 //                canvas.drawCircle(currentComplectedXPosition, mCenterY, mCircleRadius, mCompletedPaint);
@@ -251,11 +235,11 @@ public class HorizontalStepsViewIndicator extends View {
     private void drawCurve(Rect rect, Canvas canvas) {
         Log.d("Test", "width = " + rect.width() + " height = " + rect.height());
         Point p0 = new Point((int) (rect.left - rect.width() / 4f), rect.bottom);
-        Point p1 = new Point((rect.centerX() + 20), rect.bottom);
-        Point p2 = new Point(rect.left - 3, rect.top + 15);
-        Point p3 = new Point(rect.centerX(), rect.top + 3);
-        Point p4 = new Point(rect.right + 3, rect.top + 15);
-        Point p5 = new Point((rect.centerX() - 20), rect.bottom);
+        Point p1 = new Point((rect.centerX() + dpToPx(10)), rect.bottom);
+        Point p2 = new Point(rect.left - 3, rect.top + dpToPx(7));
+        Point p3 = new Point(rect.centerX(), rect.top + dpToPx(1));
+        Point p4 = new Point(rect.right + 3, rect.top + dpToPx(7));
+        Point p5 = new Point((rect.centerX() - dpToPx(10)), rect.bottom);
         Point p6 = new Point((int) (rect.right + rect.width() / 4f), rect.bottom);
 
         Path path = new Path();
@@ -288,7 +272,7 @@ public class HorizontalStepsViewIndicator extends View {
         this.mStepBeanList = stepsBeanList;
         mStepNum = mStepBeanList.size();
 
-        if (mStepBeanList != null && mStepBeanList.size() > 0) {
+        if (mStepBeanList.size() > 0) {
             for (int i = 0; i < mStepNum; i++) {
                 StepBean stepsBean = mStepBeanList.get(i);
                 {
@@ -365,11 +349,8 @@ public class HorizontalStepsViewIndicator extends View {
         invalidate();
     }
 
-
-    /**
-     * 设置对view监听
-     */
-    public interface OnDrawIndicatorListener {
-        void ondrawIndicator();
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 }
