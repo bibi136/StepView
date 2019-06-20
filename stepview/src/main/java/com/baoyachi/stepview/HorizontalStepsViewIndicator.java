@@ -245,7 +245,7 @@ public class HorizontalStepsViewIndicator extends View {
         int maxHeight = rect.bottom;
         int centerX = rect.centerX();
 
-        Point p0 = new Point(rect.left - rect.width() / 3, rect.bottom);
+        Point p0 = new Point(rect.left - rect.width() / 4, rect.bottom);
         Point p3 = new Point(rect.centerX(), centerY);
 
         Point p1 = new Point((int) rect.centerX(), rect.bottom);

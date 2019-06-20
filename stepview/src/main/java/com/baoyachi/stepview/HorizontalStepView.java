@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baoyachi.stepview.bean.StepBean;
+import com.baoyachi.stepview.kotlin.StepView;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class HorizontalStepView extends LinearLayout
 {
-    private HorizontalStepsViewIndicator mStepsViewIndicator;
+    private StepView mStepsViewIndicator;
     private List<StepBean> mStepBeanList;
 
     public HorizontalStepView(Context context)
@@ -46,7 +47,7 @@ public class HorizontalStepView extends LinearLayout
     private void init()
     {
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.widget_horizontal_stepsview, this);
-        mStepsViewIndicator = (HorizontalStepsViewIndicator) rootView.findViewById(R.id.steps_indicator);
+        mStepsViewIndicator = rootView.findViewById(R.id.steps_indicator);
     }
 
     /**
@@ -58,7 +59,7 @@ public class HorizontalStepView extends LinearLayout
     public HorizontalStepView setStepViewTexts(List<StepBean> stepsBeanList)
     {
         mStepBeanList = stepsBeanList;
-        mStepsViewIndicator.setStepNum(mStepBeanList);
+        mStepsViewIndicator.setStepNum(mStepBeanList.size());
         return this;
     }
 
